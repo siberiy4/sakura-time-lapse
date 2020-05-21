@@ -8,8 +8,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
+	"sakura-time-lapse/util"
 )
-
 
 // unpackTar jpgがまとめられたtarを展開する
 func unpackTar() {
@@ -49,8 +50,25 @@ func unpackTar() {
 	fmt.Println("unpack tar")
 }
 
+//作ったmp４を連結してその日の
+func unitMP4() {
+	if _, err := os.Stat("movie/hoge.mp4"); os.IsNotExist(err) {
+		if err := os.Rename("test/video.mp4", "movie/hoge.mp4"); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("make mp4")
+	} else {
+		err := exec.Command("./ffmpeg-4.2.2-amd64-static/ffmpeg", "-f", "concat", "-i", "unitMP4.txt", "-c", "copy", "movie/hoge.mp4", "-y").Run()
+		if err != nil {
+			log.Fatal(err)
+		}
+		util.CopyFile("movie/hoge.mp4", "movie/test.mp4")
+		fmt.Println("unit mp4")
+	}
+}
 
-func makeTimeLapse() {
+// MakeTimeLapse タイムラプスを作成する
+func MakeTimeLapse() {
 	unpackTar()
 	//タイムラプスの作成
 	err := exec.Command("./ffmpeg-4.2.2-amd64-static/ffmpeg", "-f", "image2", "-r", "20", "-i", "test/source%04d.jpg", "-r", "40", "-an", "-vcodec", "libx264", "-pix_fmt", "yuv420p", "video.mp4", "-y").Run()
@@ -58,6 +76,7 @@ func makeTimeLapse() {
 		log.Fatal(err)
 	}
 
+	unitMP4()
+
 	fmt.Println("make time-lapse")
 }
-
