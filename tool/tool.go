@@ -35,11 +35,10 @@ func DownloadFFMPEG() (ffmpegPath string) {
 			log.Fatal(err)
 		}
 
-		if err := os.RemoveAll("hoge"); err != nil {
+		ffmpegPath = unpackFFMPEG("ffmpeg-release-amd64-static.tar.xz")
+		if err := os.Remove("ffmpeg-release-amd64-static.tar.xz"); err != nil {
 			fmt.Println(err)
 		}
-
-		ffmpegPath = unpackFFMPEG("ffmpeg-release-amd64-static.tar.xz")
 		fmt.Println("FFMPEG ready.")
 	} else {
 		fmt.Println("Already get ffmpeg")
