@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sakura-time-lapse/tool"
 	"sakura-time-lapse/util"
+	"sakura-time-lapse/scheduler"
 )
 
 func main() {
@@ -13,4 +14,5 @@ func main() {
 	util.MakeDirectoriy("movie")
 	util.MakeDirectoriy("jpg")
 	tool.DownloadFFMPEG()
+	scheduler.Scheduler()
 }
