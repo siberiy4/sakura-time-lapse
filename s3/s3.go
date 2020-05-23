@@ -16,6 +16,7 @@ import (
 
 // Getjpgtar 引数で指定したfile pathでS3からタイムラプス用の画像を取得
 func Getjpgtar(filePath string, filename string) {
+	fmt.Println(filePath)
 	//ACCESS_KEYとSECRET_KEYを.envから読む
 	err := godotenv.Load()
 	if err != nil {
@@ -55,6 +56,6 @@ func Getjpgtar(filePath string, filename string) {
 //S3TarPath S3で取得するfileのpathを返す
 func S3TarPath(t time.Time) (path string) {
 
-	return fmt.Sprintf("takumi/jpg/%d/%02d%02d%02d/%02d%d.tar", t.Year(), t.Year()%100, t.Month(), t.Day(), t.Hour(), (t.Minute() / 10))
+	return fmt.Sprintf("takumi/jpg/%d/%02d%02d%02d/%02d%d.tar", t.Year(), t.Year()%100, t.Month(), t.Day(), t.Hour(), (t.Minute() / 10)-1)
 
 }
