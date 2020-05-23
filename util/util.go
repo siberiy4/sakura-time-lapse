@@ -30,3 +30,16 @@ func MakeDirectoriy(name string) {
 		os.Mkdir(name, 0777)
 	}
 }
+
+// RemoveAllFile 引数のディレクトリ内のファイルをすべて消す
+func RemoveAllFile(directoryPath string) (err error) {
+	if err := os.RemoveAll(directoryPath); err != nil {
+		return err
+	}
+
+	if err := os.Mkdir(directoryPath, 0777); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -2,30 +2,31 @@ package s3
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/joho/godotenv"
-	"log"
-	"os"
 )
 
 // Getjpgtar 引数で指定したfile pathでS3からタイムラプス用の画像を取得
-func Getjpgtar(filePath string,filename string) {
+func Getjpgtar(filePath string, filename string) {
 	//ACCESS_KEYとSECRET_KEYを.envから読む
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-
 	creds := credentials.NewStaticCredentials(os.Getenv("ACCESS_KEY"), os.Getenv("SECRET_KEY"), "")
 
 	sess := session.Must(session.NewSession(&aws.Config{
 		Credentials: creds,
-		Region: aws.String(os.Getenv("S3_REGION")),
+		Region:      aws.String(os.Getenv("S3_REGION")),
 	}))
 
 	// Create a downloader with the session and default options
@@ -48,5 +49,12 @@ func Getjpgtar(filePath string,filename string) {
 		return
 	}
 	fmt.Printf("jpg-file downloaded, %d bytes\n", n)
+
+}
+
+//S3TarPath S3で取得するfileのpathを返す
+func S3TarPath(t time.Time) (path string) {
+
+	return fmt.Sprintf("takumi/jpg/%d/%02d%02d%02d/%02d%d.tar", t.Year(), t.Year()%100, t.Month(), t.Day(), t.Hour(), (t.Minute() / 10))
 
 }

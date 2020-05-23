@@ -39,7 +39,7 @@ func DownloadFFMPEG() (ffmpegPath string) {
 			fmt.Println(err)
 		}
 
-		ffmpegPath = UnpackFFMPEG("ffmpeg-release-amd64-static.tar.xz")
+		ffmpegPath = unpackFFMPEG("ffmpeg-release-amd64-static.tar.xz")
 		fmt.Println("FFMPEG ready.")
 	} else {
 		fmt.Println("Already get ffmpeg")
@@ -49,7 +49,7 @@ func DownloadFFMPEG() (ffmpegPath string) {
 }
 
 //unpackFFMPEG HPからダウンロードしたFFMPEGの圧縮ファイルをカレントディレクトリに展開
-func UnpackFFMPEG(ffmpegPack string) (Path string) {
+func unpackFFMPEG(ffmpegPack string) (Path string) {
 
 	tarxz := archiver.NewTarXz()
 	err := tarxz.Unarchive(ffmpegPack, ".")
