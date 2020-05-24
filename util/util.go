@@ -1,8 +1,8 @@
 package util
 
 import (
+	"fmt"
 	"io"
-	"log"
 	"os"
 )
 
@@ -10,17 +10,17 @@ import (
 func CopyFile(s string, d string) {
 	w, err := os.Create(d)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	r, err := os.Open(s)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	_, err = io.Copy(w, r)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 }
 

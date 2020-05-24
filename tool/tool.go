@@ -2,11 +2,11 @@ package tool
 
 import (
 	"fmt"
-	"github.com/mholt/archiver/v3"
 	"io"
-	"log"
 	"net/http"
 	"os"
+
+	"github.com/mholt/archiver/v3"
 )
 
 // DownloadFFMPEG FFMPEGをHPからダウンロードしたのち、展開する
@@ -20,19 +20,19 @@ func DownloadFFMPEG() (ffmpegPath string) {
 
 		resp, err := http.Get(ffmpegURL)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 		defer resp.Body.Close()
 
 		out, err := os.Create("ffmpeg-release-amd64-static.tar.xz")
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 		defer out.Close()
 
 		_, err = io.Copy(out, resp.Body)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 
 		ffmpegPath = unpackFFMPEG("ffmpeg-release-amd64-static.tar.xz")
@@ -53,7 +53,7 @@ func unpackFFMPEG(ffmpegPack string) (Path string) {
 	tarxz := archiver.NewTarXz()
 	err := tarxz.Unarchive(ffmpegPack, ".")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 	return
 }

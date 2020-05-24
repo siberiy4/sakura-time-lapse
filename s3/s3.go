@@ -2,7 +2,6 @@ package s3
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -20,7 +19,7 @@ func Getjpgtar(filePath string, filename string) {
 	//ACCESS_KEYとSECRET_KEYを.envから読む
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		fmt.Println("Error loading .env file")
 	}
 
 	creds := credentials.NewStaticCredentials(os.Getenv("ACCESS_KEY"), os.Getenv("SECRET_KEY"), "")
@@ -55,7 +54,15 @@ func Getjpgtar(filePath string, filename string) {
 
 //S3TarPath S3で取得するfileのpathを返す
 func S3TarPath(t time.Time) (path string) {
-
-	return fmt.Sprintf("takumi/jpg/%d/%02d%02d%02d/%02d%d.tar", t.Year(), t.Year()%100, t.Month(), t.Day(), t.Hour(), (t.Minute() / 10)-1)
+	min := 0
+	hour := 0
+	if t.Minute() < 10 {
+		min = 5
+		hour = t.Hour() - 1
+	} else {
+		min = (t.Minute() / 10) - 1
+		hour = t.Hour()
+	}
+	return fmt.Sprintf("takumi/jpg/%d/%02d%02d%02d/%02d%1d.tar", t.Year(), t.Year()%100, t.Month(), t.Day(), hour, min)
 
 }
