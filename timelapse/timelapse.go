@@ -18,7 +18,7 @@ func unpackTar() {
 	var err error
 
 	//tarのopen
-	if file, err = os.Open("jpg/jpg.tar"); err != nil {
+	if file, err = os.Open("/tmp/sakura/jpg/jpg.tar"); err != nil {
 		fmt.Println(err)
 	}
 	defer file.Close()
@@ -42,7 +42,7 @@ func unpackTar() {
 			fmt.Println(err)
 		}
 		//fileの作成
-		if err = ioutil.WriteFile(fmt.Sprintf("jpg/source%04d.jpg", i), buf.Bytes(), 0755); err != nil {
+		if err = ioutil.WriteFile(fmt.Sprintf("/tmp/sakura/jpg/source%04d.jpg", i), buf.Bytes(), 0755); err != nil {
 			fmt.Println(err)
 		}
 	}
@@ -53,20 +53,20 @@ func unpackTar() {
 //作ったmp４を連結してその日の
 func unitMP4() {
 	now := time.Now()
-	dest := fmt.Sprintf("movie/%d%02d%02d.mp4", now.Year()%100, now.Month(), now.Day())
+	dest := fmt.Sprintf("/tmp/sakura/movie/%d%02d%02d.mp4", now.Year()%100, now.Month(), now.Day())
 
 	if _, err := os.Stat(dest); os.IsNotExist(err) {
-		if err := os.Rename("pre/addition.mp4", dest); err != nil {
+		if err := os.Rename("/tmp/sakura/pre/addition.mp4", dest); err != nil {
 			fmt.Println(err)
 		}
 		fmt.Println("make mp4")
 	} else {
-		err := exec.Command("./ffmpeg-4.2.2-amd64-static/ffmpeg", "-f", "concat", "-i", "unitMP4.txt", "-c", "copy", dest, "-y").Run()
+		err := exec.Command("/tmp/sakura/ffmpeg-4.2.2-amd64-static/ffmpeg", "-f", "concat", "-i", "unitMP4.txt", "-c", "copy", dest, "-y").Run()
 		if err != nil {
 			fmt.Println(err)
 		}
 	}
-	util.CopyFile(dest, "pre/time-lapse.mp4")
+	util.CopyFile(dest, "/tmp/sakura/pre/time-lapse.mp4")
 	fmt.Println("unit mp4")
 }
 
@@ -74,12 +74,12 @@ func unitMP4() {
 func MakeTimeLapse() {
 	unpackTar()
 	//タイムラプスの作成
-	err := exec.Command("./ffmpeg-4.2.2-amd64-static/ffmpeg", "-f", "image2", "-r", "20", "-i", "jpg/source%04d.jpg", "-r", "40", "-an", "-vcodec", "libx264", "-pix_fmt", "yuv420p", "pre/addition.mp4", "-y").Run()
+	err := exec.Command("/tmp/sakura/ffmpeg-4.2.2-amd64-static/ffmpeg", "-f", "image2", "-r", "20", "-i", "/tmp/sakura/jpg/source%04d.jpg", "-r", "40", "-an", "-vcodec", "libx264", "-pix_fmt", "yuv420p", "/tmp/sakura/pre/addition.mp4", "-y").Run()
 	if err != nil {
 		fmt.Println("faild make time lapse")
 		fmt.Println(err)
 	}
-	util.RemoveAllFile("jpg/")
+	util.RemoveAllFile("/tmp/sakura/jpg/")
 	unitMP4()
 
 	fmt.Println("make time-lapse")

@@ -10,9 +10,10 @@ import (
 func main() {
 
 	fmt.Println("start")
-	util.MakeDirectoriy("pre")
-	util.MakeDirectoriy("movie")
-	util.MakeDirectoriy("jpg")
+	util.MakeDirectoriy("/tmp/sakura")
+	util.MakeDirectoriy("/tmp/sakura/pre")
+	util.MakeDirectoriy("/tmp/sakura/movie")
+	util.MakeDirectoriy("/tmp/sakura/jpg")
 	tool.DownloadFFMPEG()
 	scheduler.Scheduler()
 }

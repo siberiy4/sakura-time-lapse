@@ -18,7 +18,7 @@ func Scheduler() {
 		case now := <-ticker.C:
 			fmt.Println(now)
 			if (now.Minute()%10 == 2&&(5<=now.Hour()&&now.Hour()<20||now.Hour()==4&&now.Minute()/10>0)||now.Hour()==20&&now.Minute()==2) && now.Minute() != lastMinute {
-				s3.Getjpgtar(s3.S3TarPath(now),"jpg/jpg.tar")
+				s3.Getjpgtar(s3.S3TarPath(now),"/tmp/sakura/jpg/jpg.tar")
 				timelapse.MakeTimeLapse()
 				lastMinute = now.Minute()
 			}
