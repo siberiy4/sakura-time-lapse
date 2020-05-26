@@ -30,3 +30,7 @@ https://blog.amedama.jp/entry/2016/03/31/222050
 
 AWS S3
 https://qiita.com/daijinload/items/dff973943d2a4967c78a
+
+
+AWS lambda
+https://dev.classmethod.jp/articles/aws-lambda-supports-go/
