@@ -10,17 +10,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/joho/godotenv"
 )
 
 // Getjpgtar 引数で指定したfile pathでS3からタイムラプス用の画像を取得
 func Getjpgtar(filePath string, filename string) {
 	fmt.Println(filePath)
 	//ACCESS_KEYとSECRET_KEYを.envから読む
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	}
 
 	creds := credentials.NewStaticCredentials(os.Getenv("ACCESS_KEY"), os.Getenv("SECRET_KEY"), "")
 

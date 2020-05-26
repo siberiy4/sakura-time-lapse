@@ -5,13 +5,11 @@ import (
 	"io"
 	"net/http"
 	"os"
-
 	"github.com/mholt/archiver/v3"
 )
 
 // DownloadFFMPEG FFMPEGをHPからダウンロードしたのち、展開する
 func DownloadFFMPEG() (ffmpegPath string) {
-
 	if f, err := os.Stat("/tmp/sakura/ffmpeg-4.2.2-amd64-static/ffmpeg"); os.IsNotExist(err) || f.IsDir() {
 		if err := os.RemoveAll("/tmp/sakura/ffmpeg-4.2.2-amd64-static"); err != nil {
 			fmt.Println(err)
