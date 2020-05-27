@@ -30,11 +30,13 @@ func main() {
 
 func copyFile(s string, d string) {
 	w, err := os.Create(d)
+	defer w.Close()
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	r, err := os.Open(s)
+	defer r.Close()
 	if err != nil {
 		fmt.Println(err)
 	}
