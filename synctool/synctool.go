@@ -16,9 +16,11 @@ func main() {
 		select {
 		case now := <-ticker.C:
 			fmt.Println(now)
+			jst,_:=time.LoadLocation("Asia/Tokyo")
+			now:=time.Date(2020,5,27,10,2,18,0,jst)
 			if (now.Minute()%10 == 2 && (5 <= now.Hour() && now.Hour() < 20 || now.Hour() == 4 && now.Minute()/10 > 0) || now.Hour() == 20 && now.Minute() == 2) && now.Minute() != lastMinute {
 				path,dir,mat := tarPath(now)
-				makeDirectoriy(dir)
+				makeDirectoriy("/mnt/s3/"+dir)
 				if _, err := os.Stat("/mnt/sakura/"+path); os.IsNotExist(err) {
 				}else{
 					copyFile("/mnt/sakura/"+path,"/mnt/s3/"+mat)
@@ -47,6 +49,7 @@ func copyFile(s string, d string) {
 		fmt.Println(err)
 	}
 }
+
 
 func makeDirectoriy(name string) {
 	if _, err := os.Stat(name); os.IsNotExist(err) {
