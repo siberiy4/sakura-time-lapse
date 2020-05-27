@@ -20,7 +20,7 @@ func main() {
 				path := tarPath(now)
 				if _, err := os.Stat("/mnt/sakura/"+path); os.IsNotExist(err) {
 				}else{
-					copyFile("/mnt/sakura/"+path,"mnt/test/"+path)
+					copyFile("/mnt/sakura/"+path,"/mnt/test/"+path)
 				}
 				lastMinute = now.Minute()
 			}
