@@ -21,7 +21,7 @@ func main() {
 				makeDirectoriy(dir)
 				if _, err := os.Stat("/mnt/sakura/"+path); os.IsNotExist(err) {
 				}else{
-					copyFile("/mnt/sakura/"+path,"/mnt/test/"+mat)
+					copyFile("/mnt/sakura/"+path,"/mnt/s3/"+mat)
 				}
 				lastMinute = now.Minute()
 			}
