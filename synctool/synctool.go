@@ -17,10 +17,11 @@ func main() {
 		case now := <-ticker.C:
 			fmt.Println(now)
 			if (now.Minute()%10 == 2 && (5 <= now.Hour() && now.Hour() < 20 || now.Hour() == 4 && now.Minute()/10 > 0) || now.Hour() == 20 && now.Minute() == 2) && now.Minute() != lastMinute {
-				path := tarPath(now)
+				path,dir,mat := tarPath(now)
+				makeDirectoriy(dir)
 				if _, err := os.Stat("/mnt/sakura/"+path); os.IsNotExist(err) {
 				}else{
-					copyFile("/mnt/sakura/"+path,"/mnt/test/"+path)
+					copyFile("/mnt/sakura/"+path,"/mnt/test/"+mat)
 				}
 				lastMinute = now.Minute()
 			}
@@ -47,7 +48,13 @@ func copyFile(s string, d string) {
 	}
 }
 
-func tarPath(t time.Time) (path string) {
+func makeDirectoriy(name string) {
+	if _, err := os.Stat(name); os.IsNotExist(err) {
+		os.Mkdir(name, 0777)
+	}
+}
+
+func tarPath(t time.Time) (lcPath,testdirectory,testFile string) {
 	min := 0
 	hour := 0
 	if t.Minute() < 10 {
@@ -57,6 +64,6 @@ func tarPath(t time.Time) (path string) {
 		min = (t.Minute() / 10) - 1
 		hour = t.Hour()
 	}
-	return fmt.Sprintf("takumi/jpg/%d/%02d%02d%02d/%02d%1d.tar", t.Year(), t.Year()%100, t.Month(), t.Day(), hour, min)
+	return fmt.Sprintf("takumi/jpg/%d/%02d%02d%02d/%02d%1d.tar", t.Year(), t.Year()%100, t.Month(), t.Day(), hour, min),fmt.Sprintf("takumi/jpg/%02d%02d%02d/", t.Year()%100, t.Month(), t.Day()),fmt.Sprintf("takumi/jpg/%02d%02d%02d/%02d%1d.tar", t.Year()%100, t.Month(), t.Day(), hour, min)
 
 }
