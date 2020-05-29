@@ -10,11 +10,11 @@ import (
 
 // DownloadFFMPEG FFMPEGをHPからダウンロードしたのち、展開する
 func DownloadFFMPEG() (ffmpegPath string) {
-	if f, err := os.Stat("/tmp/sakura/ffmpeg-4.2.2-amd64-static/ffmpeg"); os.IsNotExist(err) || f.IsDir() {
-		if err := os.RemoveAll("/tmp/sakura/ffmpeg-4.2.2-amd64-static"); err != nil {
+	if f, err := os.Stat("/tmp/sakura/ffmpeg-4.2.1-amd64-static/ffmpeg"); os.IsNotExist(err) || f.IsDir() {
+		if err := os.RemoveAll("/tmp/sakura/ffmpeg-4.2.1-amd64-static"); err != nil {
 			fmt.Println(err)
 		}
-		ffmpegURL := "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+		ffmpegURL := "https://www.johnvansickle.com/ffmpeg/old-releases/ffmpeg-4.2.1-amd64-static.tar.xz"
 
 		resp, err := http.Get(ffmpegURL)
 		if err != nil {
@@ -22,7 +22,7 @@ func DownloadFFMPEG() (ffmpegPath string) {
 		}
 		defer resp.Body.Close()
 
-		out, err := os.Create("/tmp/sakura/ffmpeg-release-amd64-static.tar.xz")
+		out, err := os.Create("/tmp/sakura/ffmpeg-4.2.1-amd64-static.tar.xz")
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -33,8 +33,8 @@ func DownloadFFMPEG() (ffmpegPath string) {
 			fmt.Println(err)
 		}
 
-		ffmpegPath = unpackFFMPEG("/tmp/sakura/ffmpeg-release-amd64-static.tar.xz")
-		if err := os.Remove("/tmp/sakura/ffmpeg-release-amd64-static.tar.xz"); err != nil {
+		ffmpegPath = unpackFFMPEG("/tmp/sakura/ffmpeg-4.2.1-amd64-static.tar.xz")
+		if err := os.Remove("/tmp/sakura/ffmpeg-4.2.1-amd64-static.tar.xz"); err != nil {
 			fmt.Println(err)
 		}
 		fmt.Println("FFMPEG ready.")

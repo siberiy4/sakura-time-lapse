@@ -52,31 +52,32 @@ func unpackTar(tarFile string) {
 //作ったmp４を連結してその日の
 func unitMP4(movieName,bucketName string) {
 	dest := "/tmp/sakura/movie/" + movieName + ".mp4"
-
-	if _, err := os.Stat(dest); os.IsNotExist(err) {
+	check:=s3.CheckObject("movie/" + movieName + ".mp4",bucketName)
+	if  !check {
 		if err := os.Rename("/tmp/sakura/pre/addition.mp4", dest); err != nil {
 			fmt.Println(err)
 		}
+		fmt.Println("make mp4")
+
 	} else {
 		makeUnitTXT()
 		s3.GetS3file("movie/"+movieName+ ".mp4","/tmp/sakura/pre/time-lapse.mp4",bucketName)
-		err := exec.Command("/tmp/sakura/ffmpeg-4.2.2-amd64-static/ffmpeg", "-f", "concat", "-i", "/tmp/sakura/unitMP4.txt", "-c", "copy", dest, "-y").Run()
+		err := exec.Command("/tmp/sakura/ffmpeg-4.2.1-amd64-static/ffmpeg", "-f", "concat", "-i", "/tmp/sakura/unitMP4.txt", "-c", "copy", dest, "-y").Run()
 		if err != nil {
 			fmt.Println(err)
 		}
+		fmt.Println("unit mp4")
 	}
-	fmt.Println("unit mp4")
-	s3.UpMovie("movie/" + movieName + ".mp4",dest,bucketName)
+	s3.UpMovie(dest,"movie/" + movieName + ".mp4",bucketName)
 
 }
 
 // MakeTimeLapse タイムラプスを作成する
 func MakeTimeLapse(tarFile, movieName,bucketName string) {
-	s3.GetS3file(tarFile, "/tmp/sakura/"+tarFile, bucketName)
-
-	unpackTar("/tmp/sakura/" + tarFile)
+	s3.GetS3file(tarFile, "/tmp/sakura/takumi/jpg.tar", bucketName)
+	unpackTar("/tmp/sakura/takumi/jpg.tar")
 	//タイムラプスの作成
-	err := exec.Command("/tmp/sakura/ffmpeg-4.2.2-amd64-static/ffmpeg", "-f", "image2", "-r", "20", "-i", "/tmp/sakura/jpg/source%04d.jpg", "-r", "40", "-an", "-vcodec", "libx264", "-pix_fmt", "yuv420p", "/tmp/sakura/pre/addition.mp4", "-y").Run()
+	err := exec.Command("/tmp/sakura/ffmpeg-4.2.1-amd64-static/ffmpeg", "-f", "image2", "-r", "20", "-i", "/tmp/sakura/jpg/source%04d.jpg", "-r", "40", "-an", "-vcodec", "libx264", "-pix_fmt", "yuv420p", "/tmp/sakura/pre/addition.mp4", "-y").Run()
 	if err != nil {
 		fmt.Println("faild make time lapse")
 		fmt.Println(err)

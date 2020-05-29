@@ -14,8 +14,7 @@ import (
 func GetS3file(s3File, filename, bucket string) {
 
 	sess := session.Must(session.NewSession())
-	
-	
+
 	// Create a file to write the S3 Object contents to.
 	f, err := os.Create(filename)
 	if err != nil {
@@ -23,7 +22,7 @@ func GetS3file(s3File, filename, bucket string) {
 		return
 	}
 	// Create a downloader with the session and default options
-	downloader:=s3manager.NewDownloader(sess)
+	downloader := s3manager.NewDownloader(sess)
 	// Write the contents of S3 Object to the file
 
 	_, err = downloader.Download(f, &s3.GetObjectInput{
@@ -35,30 +34,47 @@ func GetS3file(s3File, filename, bucket string) {
 		return
 	}
 
+	fmt.Println("Get " + s3File)
+
 }
 
 //UpMovie S3にファイルをアップロード
-func UpMovie(filename,s3File,  bucket string)  {
+func UpMovie(fileName, s3File, bucket string) {
 	sess := session.Must(session.NewSession())
-	
-	
-	uploader:=s3manager.NewUploader(sess)
 
-	file,err:=os.Open(filename)
-	if err!=nil{
+	uploader := s3manager.NewUploader(sess)
+
+	file, err := os.Open(fileName)
+	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer file.Close()
 
-	_,err=uploader.Upload(&s3manager.UploadInput{
+	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(s3File),
-		Body: file,
+		Body:   file,
 	})
 
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	fmt.Println("up " + fileName)
+}
+
+//CheckObject ファイルの存在確認
+func CheckObject(key, bucket string) (b bool) {
+	
+	svc := s3.New(session.New(), &aws.Config{})
+	input:=&s3.HeadObjectInput{
+		Bucket: aws.String(bucket),
+		Key: aws.String(key),
+	}
+	_,err:=svc.HeadObject(input)
+	if err != nil {
+		return false
+	}
+	return true
 }
