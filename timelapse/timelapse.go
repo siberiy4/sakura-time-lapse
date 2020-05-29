@@ -8,17 +8,17 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"sakura-time-lapse/s3"
 	"sakura-time-lapse/util"
-	"time"
 )
 
 // unpackTar jpgがまとめられたtarを展開する
-func unpackTar() {
+func unpackTar(tarFile string) {
 	var file *os.File
 	var err error
 
 	//tarのopen
-	if file, err = os.Open("/tmp/sakura/jpg/jpg.tar"); err != nil {
+	if file, err = os.Open(tarFile); err != nil {
 		fmt.Println(err)
 	}
 	defer file.Close()
@@ -41,7 +41,6 @@ func unpackTar() {
 		if _, err = io.Copy(buf, reader); err != nil {
 			fmt.Println(err)
 		}
-		//fileの作成
 		if err = ioutil.WriteFile(fmt.Sprintf("/tmp/sakura/jpg/source%04d.jpg", i), buf.Bytes(), 0755); err != nil {
 			fmt.Println(err)
 		}
@@ -51,29 +50,31 @@ func unpackTar() {
 }
 
 //作ったmp４を連結してその日の
-func unitMP4() {
-	now := time.Now()
-	dest := fmt.Sprintf("/tmp/sakura/movie/%d%02d%02d.mp4", now.Year()%100, now.Month(), now.Day())
+func unitMP4(movieName,bucketName string) {
+	dest := "/tmp/sakura/movie/" + movieName + ".mp4"
 
 	if _, err := os.Stat(dest); os.IsNotExist(err) {
 		if err := os.Rename("/tmp/sakura/pre/addition.mp4", dest); err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println("make mp4")
 	} else {
 		makeUnitTXT()
+		s3.GetS3file("movie/"+movieName+ ".mp4","/tmp/sakura/pre/time-lapse.mp4",bucketName)
 		err := exec.Command("/tmp/sakura/ffmpeg-4.2.2-amd64-static/ffmpeg", "-f", "concat", "-i", "/tmp/sakura/unitMP4.txt", "-c", "copy", dest, "-y").Run()
 		if err != nil {
 			fmt.Println(err)
 		}
 	}
-	util.CopyFile(dest, "/tmp/sakura/pre/time-lapse.mp4")
 	fmt.Println("unit mp4")
+	s3.UpMovie("movie/" + movieName + ".mp4",dest,bucketName)
+
 }
 
 // MakeTimeLapse タイムラプスを作成する
-func MakeTimeLapse() {
-	unpackTar()
+func MakeTimeLapse(tarFile, movieName,bucketName string) {
+	s3.GetS3file(tarFile, "/tmp/sakura/"+tarFile, bucketName)
+
+	unpackTar("/tmp/sakura/" + tarFile)
 	//タイムラプスの作成
 	err := exec.Command("/tmp/sakura/ffmpeg-4.2.2-amd64-static/ffmpeg", "-f", "image2", "-r", "20", "-i", "/tmp/sakura/jpg/source%04d.jpg", "-r", "40", "-an", "-vcodec", "libx264", "-pix_fmt", "yuv420p", "/tmp/sakura/pre/addition.mp4", "-y").Run()
 	if err != nil {
@@ -81,23 +82,23 @@ func MakeTimeLapse() {
 		fmt.Println(err)
 	}
 	util.RemoveAllFile("/tmp/sakura/jpg/")
-	unitMP4()
+	unitMP4(movieName,bucketName)
 
 	fmt.Println("make time-lapse")
 }
 
 // MakeUbitTXT aa
-func makeUnitTXT()  {
-	text:=fmt.Sprint(`file '/tmp/sakura/pre/time-lapse.mp4'
+func makeUnitTXT() {
+	text := fmt.Sprint(`file '/tmp/sakura/pre/time-lapse.mp4'
 file '/tmp/sakura/pre/addition.mp4'`)
-    //os.O_RDWRを渡しているので、同時に読み込みも可能
-    file, err := os.OpenFile("/tmp/sakura/unitMP4.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-    if err != nil {
-        //エラー処理
-        fmt.Println(err)
-    }
-    defer file.Close()
-    fmt.Fprintln(file, text)
+	//os.O_RDWRを渡しているので、同時に読み込みも可能
+	file, err := os.OpenFile("/tmp/sakura/unitMP4.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		//エラー処理
+		fmt.Println(err)
+	}
+	defer file.Close()
+	fmt.Fprintln(file, text)
 
-fmt.Print(text)
+	fmt.Print(text)
 }
