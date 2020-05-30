@@ -11,6 +11,7 @@ https://qiita.com/riocampos/items/2f4fe927b5cf99aff767
 
 ffmpeg でMP4の連結
 https://yatta47.hateblo.jp/entry/2016/07/19/200000
+https://mgng.mugbum.info/1369
 
 スケジューリングのためのticker
 https://text.baldanders.info/golang/ticker/

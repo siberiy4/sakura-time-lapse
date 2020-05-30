@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"sakura-time-lapse/s3"
-	"sakura-time-lapse/util"
 )
 
 // unpackTar jpgがまとめられたtarを展開する
@@ -50,10 +49,11 @@ func unpackTar(tarFile string) {
 }
 
 //作ったmp４を連結してその日の
-func unitMP4(movieName,bucketName string) {
+func unitMP4(movieName, bucketName string) {
 	dest := "/tmp/sakura/movie/" + movieName + ".mp4"
-	check:=s3.CheckObject("movie/" + movieName + ".mp4",bucketName)
-	if  !check {
+	fmt.Println("dest: " + dest)
+	check := s3.CheckObject("movie/"+movieName+".mp4", bucketName)
+	if !check {
 		if err := os.Rename("/tmp/sakura/pre/addition.mp4", dest); err != nil {
 			fmt.Println(err)
 		}
@@ -61,37 +61,55 @@ func unitMP4(movieName,bucketName string) {
 
 	} else {
 		makeUnitTXT()
-		s3.GetS3file("movie/"+movieName+ ".mp4","/tmp/sakura/pre/time-lapse.mp4",bucketName)
-		err := exec.Command("/tmp/sakura/ffmpeg-4.2.1-amd64-static/ffmpeg", "-f", "concat", "-i", "/tmp/sakura/unitMP4.txt", "-c", "copy", dest, "-y").Run()
+		s3.GetS3file("movie/"+movieName+".mp4", "/tmp/sakura/pre/timelapse.mp4", bucketName)
+
+		if _, err := os.Stat("/tmp/sakura/pre/timelapse.mp4"); os.IsNotExist(err) {
+			fmt.Println("no /tmp/sakura/pre/timelapse.mp4")
+		}
+		if _, err := os.Stat("/tmp/sakura/pre/addition.mp4"); os.IsNotExist(err) {
+			fmt.Println("no /tmp/sakura/pre/addition.mp4")
+		}
+		if _, err := os.Stat("/tmp/sakura/ffmpeg-4.2.1-amd64-static/ffmpeg"); os.IsNotExist(err) {
+			fmt.Println("no /tmp/sakura/ffmpeg-4.2.1-amd64-static/ffmpeg")
+		}
+		if _, err := os.Stat("/tmp/sakura/unitMP4.txt"); os.IsNotExist(err) {
+			fmt.Println("no /tmp/sakura/unitMP4.txt")
+		}
+
+		res, err := exec.Command("/tmp/sakura/ffmpeg-4.2.1-amd64-static/ffmpeg", "-f", "concat","-safe", "0", "-i", "/tmp/sakura/unitMP4.txt", "-c", "copy", dest, "-y").Output()
+		fmt.Println(res)
+		fmt.Println(string(res))
 		if err != nil {
+			fmt.Println("faild unit")
 			fmt.Println(err)
 		}
 		fmt.Println("unit mp4")
 	}
-	s3.UpMovie(dest,"movie/" + movieName + ".mp4",bucketName)
+	s3.UpMovie(dest, "movie/"+movieName+".mp4", bucketName)
 
 }
 
 // MakeTimeLapse タイムラプスを作成する
-func MakeTimeLapse(tarFile, movieName,bucketName string) {
+func MakeTimeLapse(tarFile, movieName, bucketName string) {
 	s3.GetS3file(tarFile, "/tmp/sakura/takumi/jpg.tar", bucketName)
 	unpackTar("/tmp/sakura/takumi/jpg.tar")
 	//タイムラプスの作成
+
 	err := exec.Command("/tmp/sakura/ffmpeg-4.2.1-amd64-static/ffmpeg", "-f", "image2", "-r", "20", "-i", "/tmp/sakura/jpg/source%04d.jpg", "-r", "40", "-an", "-vcodec", "libx264", "-pix_fmt", "yuv420p", "/tmp/sakura/pre/addition.mp4", "-y").Run()
 	if err != nil {
 		fmt.Println("faild make time lapse")
 		fmt.Println(err)
 	}
-	util.RemoveAllFile("/tmp/sakura/jpg/")
-	unitMP4(movieName,bucketName)
+	unitMP4(movieName, bucketName)
 
-	fmt.Println("make time-lapse")
+	fmt.Println("make timelapse")
 }
 
 // MakeUbitTXT aa
 func makeUnitTXT() {
-	text := fmt.Sprint(`file '/tmp/sakura/pre/time-lapse.mp4'
-file '/tmp/sakura/pre/addition.mp4'`)
+	text := fmt.Sprint(`file '/tmp/sakura/pre/timelapse.mp4'
+file '/tmp/sakura/pre/addition.mp4'
+`)
 	//os.O_RDWRを渡しているので、同時に読み込みも可能
 	file, err := os.OpenFile("/tmp/sakura/unitMP4.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -101,5 +119,6 @@ file '/tmp/sakura/pre/addition.mp4'`)
 	defer file.Close()
 	fmt.Fprintln(file, text)
 
-	fmt.Print(text)
+	fmt.Println("make unitMP4.txt")
+
 }

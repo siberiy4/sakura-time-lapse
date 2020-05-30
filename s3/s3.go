@@ -34,7 +34,7 @@ func GetS3file(s3File, filename, bucket string) {
 		return
 	}
 
-	fmt.Println("Get " + s3File)
+	fmt.Println("Get " + s3File+"to "+filename)
 
 }
 
