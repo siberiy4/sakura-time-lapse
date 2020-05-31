@@ -31,6 +31,8 @@ func CopyFile(s string, d string) {
 func MakeDirectoriy(name string) {
 	if _, err := os.Stat(name); os.IsNotExist(err) {
 		os.Mkdir(name, 0777)
+	}else{
+		RemoveAllFile(name)
 	}
 }
 

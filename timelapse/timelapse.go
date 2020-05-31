@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"sakura-time-lapse/s3"
+	"sakura-time-lapse/util"
 )
 
 // unpackTar jpgがまとめられたtarを展開する
@@ -85,6 +86,7 @@ func unitMP4(movieName, bucketName string) {
 		}
 		fmt.Println("unit mp4")
 	}
+	util.RemoveAllFile("/tmp/sakura/pre")
 	s3.UpMovie(dest, "movie/"+movieName+".mp4", bucketName)
 
 }
